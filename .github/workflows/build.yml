@@ -1,0 +1,26 @@
+name: Build APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip project
+        run: for f in ./*.zip; do unzip -o "$f"; done
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.0'
+      - name: Build debug APK
+        working-directory: OfflineCast
+        run: gradle assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OfflineCast-apk
+          path: OfflineCast/app/build/outputs/apk/debug/app-debug.apk
